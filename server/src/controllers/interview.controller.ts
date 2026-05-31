@@ -1,20 +1,48 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { z } from 'zod';
+import prisma from '../database/prisma';
 import interviewService from '../services/interview.service';
 import { startInterviewSchema, sendInterviewMessageSchema } from '../schemas/interview.schema';
+import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 class InterviewController {
-  async sendInterviewMessage(req: Request, res: Response): Promise<void> {
+  async sendInterviewMessage(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const validatedData = sendInterviewMessageSchema.parse(req.body);
       const { interviewId, scenario, history, candidateMessage, userId } = validatedData;
+
+      const targetUserId = userId || req.user?.userId;
+      if (!targetUserId) {
+        res.status(400).json({ error: 'Id do usuário é obrigatório.' });
+        return;
+      }
+
+      if (targetUserId !== req.user?.userId) {
+        res.status(403).json({ error: 'Acesso proibido: Você não possui autorização para este usuário.' });
+        return;
+      }
+
+      if (interviewId) {
+        const interview = await prisma.interview.findUnique({
+          where: { id: interviewId },
+          select: { userId: true }
+        });
+        if (!interview) {
+          res.status(404).json({ error: 'Simulação não encontrada.' });
+          return;
+        }
+        if (interview.userId !== req.user?.userId) {
+          res.status(403).json({ error: 'Acesso proibido: Esta simulação pertence a outro usuário.' });
+          return;
+        }
+      }
 
       const result = await interviewService.sendInterviewMessage(
         interviewId,
         scenario,
         history,
         candidateMessage,
-        userId
+        targetUserId
       );
 
       res.status(200).json(result);
@@ -32,12 +60,23 @@ class InterviewController {
     }
   }
 
-  async startInterview(req: Request, res: Response): Promise<void> {
+  async startInterview(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const validatedData = startInterviewSchema.parse(req.body);
       const { scenario, userId } = validatedData;
 
-      const result = await interviewService.startInterview(scenario, userId);
+      const targetUserId = userId || req.user?.userId;
+      if (!targetUserId) {
+        res.status(400).json({ error: 'Id do usuário é obrigatório.' });
+        return;
+      }
+
+      if (targetUserId !== req.user?.userId) {
+        res.status(403).json({ error: 'Acesso proibido: Você não possui autorização para este usuário.' });
+        return;
+      }
+
+      const result = await interviewService.startInterview(scenario, targetUserId);
 
       res.status(200).json(result);
     } catch (error: unknown) {
@@ -54,11 +93,16 @@ class InterviewController {
     }
   }
 
-  async getInterviewHistory(req: Request, res: Response): Promise<void> {
+  async getInterviewHistory(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { userId } = req.params;
       if (!userId) {
         res.status(400).json({ error: 'Id do usuário é obrigatório' });
+        return;
+      }
+
+      if (userId !== req.user?.userId) {
+        res.status(403).json({ error: 'Acesso proibido: Você não possui autorização para este usuário.' });
         return;
       }
 
@@ -71,7 +115,7 @@ class InterviewController {
     }
   }
 
-  async getInterviewDetails(req: Request, res: Response): Promise<void> {
+  async getInterviewDetails(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { interviewId } = req.params;
       if (!interviewId) {
@@ -79,11 +123,20 @@ class InterviewController {
         return;
       }
 
-      const result = await interviewService.getInterviewDetails(interviewId);
-      if (!result) {
-        res.status(404).json({ error: 'Simulação não encontrada' });
+      const interview = await prisma.interview.findUnique({
+        where: { id: interviewId },
+        select: { userId: true }
+      });
+      if (!interview) {
+        res.status(404).json({ error: 'Simulação não encontrada.' });
         return;
       }
+      if (interview.userId !== req.user?.userId) {
+        res.status(403).json({ error: 'Acesso proibido: Esta simulação pertence a outro usuário.' });
+        return;
+      }
+
+      const result = await interviewService.getInterviewDetails(interviewId);
       res.status(200).json(result);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -92,11 +145,24 @@ class InterviewController {
     }
   }
 
-  async deleteInterview(req: Request, res: Response): Promise<void> {
+  async deleteInterview(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { interviewId } = req.params;
       if (!interviewId) {
         res.status(400).json({ error: 'Id da simulação é obrigatório' });
+        return;
+      }
+
+      const interview = await prisma.interview.findUnique({
+        where: { id: interviewId },
+        select: { userId: true }
+      });
+      if (!interview) {
+        res.status(404).json({ error: 'Simulação não encontrada.' });
+        return;
+      }
+      if (interview.userId !== req.user?.userId) {
+        res.status(403).json({ error: 'Acesso proibido: Esta simulação pertence a outro usuário.' });
         return;
       }
 
