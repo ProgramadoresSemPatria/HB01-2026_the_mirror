@@ -42,6 +42,27 @@ function SectionDescription({ children, className, ...props }: React.ComponentPr
   );
 }
 
+function MotionDiv({
+  isInView,
+  children,
+  className,
+}: {
+  isInView: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 60 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      className={cn('mb-20 text-center', className)}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 // Logo brand
 function Logo() {
   return (
@@ -190,6 +211,12 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const { ref: revealRef, isInView: revealInView } = (() => {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, amount: 0.2 });
+    return { ref, isInView };
+  })();
 
   const handleStartSimulation = () => {
     navigate('/interviews');
@@ -345,6 +372,49 @@ export default function LandingPage() {
             </a>
           </motion.div>
         </div>
+      </section>
+
+      {/* How it Works Section */}
+      <section
+        id="como-funciona"
+        ref={revealRef}
+        className="relative bg-background pt-12 pb-24"
+      >
+        <Container className="relative">
+          {/* Header */}
+          <MotionDiv isInView={revealInView} className="pb-16 text-center">
+            <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
+              Como Funciona
+            </span>
+            <SectionHeading>
+              Três etapas. Sem elogios.
+            </SectionHeading>
+            <SectionDescription>
+              O Mirror te coloca em uma sessão adversarial real. O entrevistador não para de pressionar até encontrar seus gaps.
+            </SectionDescription>
+          </MotionDiv>
+
+          {/* Steps */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {HOW_IT_WORKS.map((step, i) => (
+              <motion.div
+                key={step.step}
+                initial={{ opacity: 0, y: 40 }}
+                animate={revealInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
+                className="rounded-3xl border bg-background/2 p-8 backdrop-blur-xs transition-[background-color,box-shadow] duration-200 hover:bg-primary/7 hover:shadow-[0_0_30px_rgba(56,189,248,0.07)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="text-4xl font-bold text-primary/20 font-headline">
+                    {step.step}
+                  </span>
+                </div>
+                <h3 className="mb-3 text-xl font-semibold text-foreground">{step.title}</h3>
+                <p className="leading-relaxed text-text-secondary">{step.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </Container>
       </section>
 
       {/* Footer */}
