@@ -598,6 +598,7 @@
 }
 
 .mirror-verdict-card {
+  position: relative;
   max-width: 680px;
   width: 100%;
   background: var(--mirror-surface);

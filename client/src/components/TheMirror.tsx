@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Database, Zap, Lock, Rocket, HardDrive, LineChart, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react'
+import { Database, Zap, Lock, Rocket, HardDrive, LineChart, ShieldCheck, ArrowRight, AlertCircle, MessageSquare, Eye } from 'lucide-react'
 import {
   interviewApi,
   GapType,
@@ -131,11 +131,15 @@ function InterviewScreen({
   turns,
   isLoading,
   onSend,
+  isCompleted,
+  onShowVerdict,
 }: {
   scenario: string
   turns: Turn[]
   isLoading: boolean
   onSend: (msg: string) => void
+  isCompleted?: boolean
+  onShowVerdict?: () => void
 }) {
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -170,9 +174,20 @@ function InterviewScreen({
         <div className="mirror-interview-scenario">
           <span className="mirror-scenario-pill">{scenario}</span>
         </div>
-        <div className="mirror-interviewer-badge">
-          <div className="mirror-avatar-dot" />
-          <span>Entrevistador</span>
+        <div className="flex items-center gap-3">
+          {isCompleted && onShowVerdict && (
+            <button
+              onClick={onShowVerdict}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 border border-[#3b82f6]/30 text-[#60a5fa] font-mono text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors cursor-pointer"
+            >
+              <Eye size={12} />
+              Ver Relatório
+            </button>
+          )}
+          <div className="mirror-interviewer-badge">
+            <div className="mirror-avatar-dot" />
+            <span>Entrevistador</span>
+          </div>
         </div>
       </div>
 
@@ -239,31 +254,44 @@ function InterviewScreen({
       </div>
 
       {/* Input */}
-      <div className="mirror-input-wrap">
-        <textarea
-          ref={textareaRef}
-          className="mirror-input"
-          placeholder="Sua resposta..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              handleSend()
-            }
-          }}
-          rows={1}
-          disabled={isLoading}
-        />
-        <button
-          className="mirror-send-btn"
-          disabled={!input.trim() || isLoading}
-          onClick={handleSend}
-          aria-label="Enviar"
-        >
-          <ArrowRight size={20} />
-        </button>
-      </div>
+      {isCompleted && onShowVerdict ? (
+        <div className="mirror-input-wrap flex items-center justify-between gap-4 py-4 px-6 border-t border-[var(--mirror-border)] bg-[var(--mirror-surface)]">
+          <span className="text-zinc-500 font-mono text-xs">Simulação finalizada. O canal de mensagens está fechado.</span>
+          <button
+            onClick={onShowVerdict}
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-mono text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
+          >
+            <Eye size={14} />
+            Exibir Relatório
+          </button>
+        </div>
+      ) : (
+        <div className="mirror-input-wrap">
+          <textarea
+            ref={textareaRef}
+            className="mirror-input"
+            placeholder="Sua resposta..."
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSend()
+              }
+            }}
+            rows={1}
+            disabled={isLoading}
+          />
+          <button
+            className="mirror-send-btn"
+            disabled={!input.trim() || isLoading}
+            onClick={handleSend}
+            aria-label="Enviar"
+          >
+            <ArrowRight size={20} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -273,10 +301,12 @@ function VerdictScreen({
   scorecard,
   diagnosis,
   onRestart,
+  onMinimize,
 }: {
   scorecard: Scorecard
   diagnosis: Diagnosis
   onRestart: () => void
+  onMinimize: () => void
 }) {
   const finalScore = scorecard?.finalScore ?? 0
   const scenarioTitle = scorecard?.scenarioTitle ?? 'Simulação Concluída'
@@ -291,6 +321,15 @@ function VerdictScreen({
         transition={{ duration: 0.4 }}
         className="mirror-verdict-card"
       >
+        {/* Top Right Minimize button */}
+        <button
+          onClick={onMinimize}
+          title="Minimizar e ver histórico da conversa"
+          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-lg transition-colors cursor-pointer border-none bg-transparent"
+        >
+          <MessageSquare size={18} />
+        </button>
+
         {/* Header */}
         <div className="mirror-verdict-header" style={{
           background: finalScore >= 70 ? 'rgba(34, 197, 94, 0.05)' : 'rgba(220, 38, 38, 0.05)'
@@ -569,12 +608,24 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
         )}
         {appState === 'INTERVIEW' && (
           <motion.div key="interview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mirror-page">
-            <InterviewScreen scenario={scenario} turns={turns} isLoading={isLoading} onSend={handleSend} />
+            <InterviewScreen
+              scenario={scenario}
+              turns={turns}
+              isLoading={isLoading}
+              onSend={handleSend}
+              isCompleted={verdict !== null}
+              onShowVerdict={() => setAppState('VERDICT')}
+            />
           </motion.div>
         )}
         {appState === 'VERDICT' && verdict && (
           <motion.div key="verdict" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mirror-page">
-            <VerdictScreen scorecard={verdict.scorecard} diagnosis={verdict.diagnosis} onRestart={handleRestart} />
+            <VerdictScreen
+              scorecard={verdict.scorecard}
+              diagnosis={verdict.diagnosis}
+              onRestart={handleRestart}
+              onMinimize={() => setAppState('INTERVIEW')}
+            />
           </motion.div>
         )}
       </AnimatePresence>
