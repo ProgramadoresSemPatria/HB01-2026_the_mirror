@@ -245,7 +245,15 @@ const BUSINESS_SECTORS = [
   'Aplicativo de Delivery em tempo real com rastreamento ativo de geolocalização',
   'Rede social de mídia com feeds de posts muito dinâmicos e cache agressivo',
   'Plataforma de Streaming e upload assíncrono de grandes arquivos de vídeo',
-  'Sistema de Logística com cálculo de rotas concorrentes em tempo real'
+  'Sistema de Logística com cálculo de rotas concorrentes em tempo real',
+  'SaaS de Recursos Humanos com processamento em lote de folhas de pagamento em massa',
+  'Plataforma de Healthtech que processa telemedicina e imagens médicas de alta resolução em tempo real',
+  'Aplicativo de Mobilidade Urbana com milhares de motoristas enviando coordenadas por segundo',
+  'Sistema de Monitoramento IoT de fábrica inteligente recebendo telemetria de sensores a cada milissegundo',
+  'Plataforma de EdTech que realiza exames nacionais e simulados simultâneos para milhões de estudantes',
+  'API de Agregador de Viagens buscando tarifas de múltiplos provedores aéreos concorrentemente',
+  'Sistema de Venda de Ingressos para eventos de grande porte com forte concorrência de checkout (Race Condition)',
+  'Plataforma de Governança e Auditoria que processa logs de acesso imutáveis e conformidade com LGPD'
 ];
 
 const ARCHITECTURAL_CONSTRAINTS = [
@@ -254,7 +262,16 @@ const ARCHITECTURAL_CONSTRAINTS = [
   'alta latência ao comunicar com APIs externas críticas de parceiros',
   'necessidade de segurança estrita de dados',
   'requisito de alta disponibilidade e tolerância a falhas extremas em rede instável',
-  'migração ativa de dados legados rodando concorrentemente em background'
+  'migração ativa de dados legados rodando concorrentemente em background',
+  'tabelas do banco de dados gigantescas (centenas de milhões de linhas) sem índices otimizados',
+  'arquitetura serverless com limite estrito de timeout de execução rápida e cold starts frequentes',
+  'integração obrigatória com webhooks externos que falham ou atrasam com frequência e requerem retentativas com backoff exponencial',
+  'sincronização de dados offline que gera conflitos frequentes de concorrência quando os clientes se reconectam',
+  'impossibilidade absoluta de usar cache compartilhado (Redis), dependendo estritamente do banco de dados ou cache local em memória',
+  'limite severo de requisições (rate limiting) por IP e por token de API impostos por um gateway externo',
+  'obrigação de processar dados em streams de eventos ordenados estritamente e sem perdas',
+  'banco de dados réplica de leitura que possui delay de replicação de até 5 segundos',
+  'necessidade de criptografia ponta a ponta em trânsito e em repouso de todas as colunas sensíveis'
 ];
 
 class InterviewService {
@@ -364,6 +381,7 @@ class InterviewService {
             description: "O candidato atingiu o limite de perguntas do cenário sem responder de forma completa a todos os critérios."
           }
         ],
+        successes: result.finalScorecard?.successes ?? [],
       };
       result.nextInterviewerMessage = result.nextInterviewerMessage || "Entrevista encerrada. O limite de perguntas foi atingido.";
       result.diagnosis = {
@@ -389,6 +407,9 @@ class InterviewService {
       const failuresJson: Prisma.InputJsonValue = result.finalScorecard?.failures
         ? JSON.parse(JSON.stringify(result.finalScorecard.failures))
         : null;
+      const successesJson: Prisma.InputJsonValue = result.finalScorecard?.successes
+        ? JSON.parse(JSON.stringify(result.finalScorecard.successes))
+        : null;
 
       await prisma.interview.update({
         where: { id: currentInterviewId },
@@ -402,6 +423,7 @@ class InterviewService {
           evidence: result.diagnosis?.evidenceSpan ?? null,
           note: result.diagnosis?.note ?? null,
           failures: failuresJson,
+          successes: successesJson,
           turnCount: updatedInterviewerQuestionsCount,
           currentStep: currentStep,
         }

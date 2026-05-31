@@ -283,6 +283,7 @@ function VerdictScreen({
   const finalScore = scorecard?.finalScore ?? 0
   const scenarioTitle = scorecard?.scenarioTitle ?? 'Simulação Concluída'
   const failuresList = scorecard?.failures ?? []
+  const successesList = scorecard?.successes ?? []
 
   return (
     <div className="mirror-verdict">
@@ -326,6 +327,30 @@ function VerdictScreen({
             )}
           </div>
         </div>
+
+        {/* Successes checklist */}
+        {successesList.length > 0 && (
+          <div className="mirror-successes">
+            <h3 className="mirror-successes-title">Pontos Fortes / Acertos</h3>
+            <div className="mirror-successes-list">
+              {successesList.map((s, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 * i + 0.2, duration: 0.4 }}
+                  className="mirror-success-item"
+                >
+                  <div className="mirror-success-dot" />
+                  <div>
+                    <div className="mirror-success-criterion">{s.criterion}</div>
+                    <div className="mirror-success-desc">{s.description}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Failures checklist */}
         <div className="mirror-failures">
@@ -469,6 +494,7 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
                 scenarioTitle: data.scenario.title,
                 finalScore: data.score ?? 0,
                 failures: data.failures ?? [],
+                successes: data.successes ?? [],
               },
               diagnosis: {
                 gapDetected: data.gapDetected ?? 'NONE',

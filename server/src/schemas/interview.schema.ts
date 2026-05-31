@@ -25,10 +25,18 @@ export const failureSchema = z.object({
 
 export type Failure = z.infer<typeof failureSchema>;
 
+export const successSchema = z.object({
+  criterion: z.string().trim(),
+  description: z.string().trim(),
+});
+
+export type Success = z.infer<typeof successSchema>;
+
 export const scorecardSchema = z.object({
   scenarioTitle: z.string().trim(),
   finalScore: z.number(),
   failures: z.array(failureSchema),
+  successes: z.array(successSchema).optional().default([]),
 });
 
 export type Scorecard = z.infer<typeof scorecardSchema>;

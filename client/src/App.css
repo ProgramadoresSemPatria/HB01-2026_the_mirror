@@ -824,3 +824,51 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #52525b;
 }
+
+/* Successes rendering styles */
+.mirror-successes {
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--mirror-border);
+}
+
+.mirror-successes-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #22c55e;
+  margin: 0 0 20px;
+}
+
+.mirror-successes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mirror-success-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.mirror-success-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.mirror-success-criterion {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.mirror-success-desc {
+  font-size: 0.8rem;
+  color: var(--mirror-muted);
+  margin-top: 2px;
+}

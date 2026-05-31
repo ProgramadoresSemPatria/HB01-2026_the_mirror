@@ -13,10 +13,16 @@ export interface Failure {
   description: string;
 }
 
+export interface Success {
+  criterion: string;
+  description: string;
+}
+
 export interface Scorecard {
   scenarioTitle: string;
   finalScore: number;
   failures: Failure[];
+  successes?: Success[];
 }
 
 export interface InterviewResponse {
@@ -75,6 +81,7 @@ export interface InterviewDetails {
   evidence: string | null;
   note: string | null;
   failures: Failure[] | null;
+  successes: Success[] | null;
   history: Turn[];
   createdAt: string;
   scenario: {
