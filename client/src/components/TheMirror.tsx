@@ -145,10 +145,19 @@ function InterviewScreen({
 }) {
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [turns, isLoading])
+
+  useEffect(() => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`
+    }
+  }, [input])
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return
@@ -224,6 +233,7 @@ function InterviewScreen({
       {/* Input */}
       <div className="mirror-input-wrap">
         <textarea
+          ref={textareaRef}
           className="mirror-input"
           placeholder="Sua resposta..."
           value={input}
