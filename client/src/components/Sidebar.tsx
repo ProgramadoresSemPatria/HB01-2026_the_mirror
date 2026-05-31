@@ -28,7 +28,7 @@ export function Sidebar() {
           onClick={() => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.reload();
+            window.location.href = '/';
           }}
           className="cursor-pointer flex items-center w-full px-4 py-3 text-zinc-300 hover:bg-red-500/50 rounded-lg transition-colors group"
         >

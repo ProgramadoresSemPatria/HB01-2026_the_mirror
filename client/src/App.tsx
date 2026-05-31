@@ -62,16 +62,29 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/"
+            element={
+              session ? (
+                <Navigate to="/interviews" replace />
+              ) : (
+                <LandingPage />
+              )
+            }
+          />
           <Route
             path="/login"
             element={
-              <Auth
-                onAuthSuccess={({ user }) => {
-                  setSession({ user });
-                  window.location.replace('/interviews');
-                }}
-              />
+              session ? (
+                <Navigate to="/interviews" replace />
+              ) : (
+                <Auth
+                  onAuthSuccess={({ user }) => {
+                    setSession({ user });
+                    window.location.replace('/interviews');
+                  }}
+                />
+              )
             }
           />
           <Route
