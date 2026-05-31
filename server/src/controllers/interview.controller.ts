@@ -53,6 +53,44 @@ class InterviewController {
       res.status(500).json({ error: 'Failed to initialize simulation record in database' });
     }
   }
+
+  async getInterviewHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        res.status(400).json({ error: 'Id do usuário é obrigatório' });
+        return;
+      }
+
+      const result = await interviewService.getInterviewHistory(userId);
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[Server] Fetching interview history failed:', message);
+      res.status(500).json({ error: 'Failed to fetch interview history' });
+    }
+  }
+
+  async getInterviewDetails(req: Request, res: Response): Promise<void> {
+    try {
+      const { interviewId } = req.params;
+      if (!interviewId) {
+        res.status(400).json({ error: 'Id da simulação é obrigatório' });
+        return;
+      }
+
+      const result = await interviewService.getInterviewDetails(interviewId);
+      if (!result) {
+        res.status(404).json({ error: 'Simulação não encontrada' });
+        return;
+      }
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[Server] Fetching interview details failed:', message);
+      res.status(500).json({ error: 'Failed to fetch interview details' });
+    }
+  }
 }
 
 const interviewController = new InterviewController();

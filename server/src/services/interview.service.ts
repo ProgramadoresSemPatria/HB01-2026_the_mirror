@@ -407,6 +407,31 @@ class InterviewService {
     result.interviewId = currentInterviewId;
     return result;
   }
+
+  async getInterviewDetails(interviewId: string) {
+    return prisma.interview.findUnique({
+      where: { id: interviewId },
+      include: {
+        scenario: true,
+      },
+    });
+  }
+
+  async getInterviewHistory(userId: string) {
+    return prisma.interview.findMany({
+      where: { userId },
+      include: {
+        scenario: {
+          select: {
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 }
 
 export default new InterviewService();
