@@ -371,6 +371,8 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
   const startedSlugRef = useRef<string | null>(null)
 
   const handleStart = async (selectedScenario: string) => {
+    setScenario(selectedScenario)
+    setAppState('INTERVIEW')
     setIsLoading(true)
     try {
       const data = await interviewApi.start({
@@ -380,14 +382,12 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
 
       if (data.interviewId) {
         setInterviewId(data.interviewId)
-        setScenario(selectedScenario)
         setTurns([{
           role: 'interviewer',
           content: data.nextInterviewerMessage,
           diagnosis: data.diagnosis,
         }])
         setVerdict(null)
-        setAppState('INTERVIEW')
         navigate(`/interviews/session/${data.interviewId}`, { replace: true })
       }
     } catch (err: unknown) {
