@@ -458,10 +458,94 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
           </motion.div>
         )}
 
+        {/* State: Verdict */}
         {appState === 'verdict' && (
-          <div className="text-center py-12 text-text-muted">
-            Sessão: {appState}
-          </div>
+          <motion.div
+            key="verdict"
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Verdict header */}
+            <div className="mb-6 flex items-center justify-between">
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-foreground cursor-pointer"
+                id="btn-restart-from-verdict"
+              >
+                <ArrowLeftIcon size={16} />
+                Nova Simulação
+              </button>
+            </div>
+
+            {/* Scorecard Container */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="overflow-hidden rounded-2xl border border-border bg-background"
+            >
+              {/* Header — minimal */}
+              <div className="border-b border-border px-6 py-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-text-muted">
+                      {selectedChallenge?.title ?? 'Entrevista Técnica'}
+                    </p>
+                    <h3 className="mt-1 text-xl font-semibold text-error">
+                      Candidato Reprovado
+                    </h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-error">25%</div>
+                    <div className="text-xs text-text-muted">score final</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scorecard — compact list */}
+              <div className="divide-y divide-border">
+                {SCORECARD_ITEMS.map((item, i) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 + i * 0.06 }}
+                    className="flex items-center gap-4 px-6 py-3"
+                  >
+                    <span className={`text-xs ${item.passed ? 'text-success' : 'text-error'}`}>
+                      {item.passed ? '✓' : '✗'}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm text-foreground">{item.label}</span>
+                      <span className="ml-2 text-xs text-text-muted">— {item.note}</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Footer CTA */}
+              <div className="border-t border-border px-6 py-4">
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleReset}
+                    id="btn-try-again"
+                    className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover cursor-pointer"
+                  >
+                    Novo Desafio
+                  </button>
+                  <button
+                    onClick={() => setAppState('interview')}
+                    id="btn-review-interview"
+                    className="rounded-lg border border-border px-4 py-2.5 text-sm text-text-secondary transition-colors hover:border-border-hover hover:text-foreground cursor-pointer"
+                  >
+                    Ver Entrevista
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
