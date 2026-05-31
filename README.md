@@ -20,7 +20,12 @@ Every technical interview prep tool coddles you—**The Mirror does not.**
 
 - **Adversarial AI**: Probes responses for gaps, assumptions, and shallow technical depth.
 - **Incident Scenarios**: Realistic, high-stakes production challenges designed to simulate worst-case on-call engineering nightmares.
-* **Strict Scorecard:** A complete, critical evaluation of your technical answers at the end of the simulation.
+- **Strict Scorecard**: A complete, critical evaluation of your technical answers at the end of the simulation.
+
+<div align="center">
+  <img src="https://i.postimg.cc/ZqyG4Gpm/example-chat.png" alt="The Mirror Chat Example" width="60%" style="border-radius: 8px; border: 1px solid #30363d;">
+  <p><em>The Mirror Chat Example</em></p>
+</div>
 
 ## Installation & Setup
 
@@ -55,6 +60,8 @@ npm run dev
 | **Rejection Scorecard** | Final evaluation metric showing your pass/fail status, detailed gaps, and overall score |
 | **Real-World Scenarios** | Test yourself against query optimization, worker memory leaks, cache design, or race conditions |
 | **Strict Turn Limits** | Limited turns to answer questions, forcing conciseness and precision under pressure |
+| **Simulation History & Sidebar** | Keep track of past simulations, view your scores, and resume or review archived sessions |
+| **History Log Deletion** | Clean up your history logs by deleting specific mock interview sessions with a custom confirmation modal |
 
 ## Tech Stack
 
@@ -100,6 +107,9 @@ npm run dev
 | `POST` | `/api/auth/login` | Authenticate candidate credentials |
 | `POST` | `/api/interview/start` | Start a new mock interview session |
 | `POST` | `/api/interview/message` | Submit an answer turn to the AI interviewer |
+| `GET` | `/api/interview/history/:userId` | Retrieve past simulation runs for a specific candidate |
+| `GET` | `/api/interview/details/:interviewId` | Fetch full logs and scorecard of a specific session |
+| `DELETE` | `/api/interview/:interviewId` | Permanently delete a simulation session |
 
 ## Team
 
