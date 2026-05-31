@@ -1,10 +1,37 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { interviewApi, HistoryItem } from '../api/interview';
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    try {
+      await interviewApi.delete(deleteConfirmId);
+      setHistory((prev) => prev.filter((item) => item.id !== deleteConfirmId));
+      if (location.pathname === `/interviews/session/${deleteConfirmId}`) {
+        navigate('/interviews');
+      }
+      toast.success('Simulação excluída com sucesso');
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error('Erro ao excluir simulação');
+    } finally {
+      setDeleteConfirmId(null);
+    }
+  };
 
   const userStr = localStorage.getItem('user');
   let userId: string | undefined;
@@ -67,31 +94,42 @@ export function Sidebar() {
                 const firstAiMsg = item.history?.find((turn) => turn.role === 'interviewer');
                 const displayName = firstAiMsg?.content || item.scenario.title;
                 return (
-                  <Link
+                  <div
                     key={item.id}
-                    to={`/interviews/session/${item.id}`}
-                    className={`flex flex-col px-4 py-2 text-sm rounded-lg transition-colors border ${isActive
-                        ? 'bg-zinc-700/40 text-white border-zinc-600'
-                        : 'text-zinc-400 hover:text-white hover:bg-zinc-700/20 border-transparent'
+                    className={`relative group flex items-center rounded-lg transition-colors border ${isActive
+                        ? 'bg-zinc-700/40 border-zinc-600'
+                        : 'hover:bg-zinc-700/20 border-transparent'
                       }`}
                   >
-                    <span className="font-medium truncate" title={displayName}>{displayName}</span>
-                    <div className="flex items-center justify-between mt-1 text-[10px]">
-                      <span className="text-zinc-500">{new Date(item.createdAt).toLocaleDateString('pt-BR')}</span>
-                      {item.verdict ? (
-                        <span className={`px-1 rounded-[3px] font-bold uppercase ${item.verdict === 'APROVADO'
-                            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                          }`}>
-                          {item.verdict}
-                        </span>
-                      ) : (
-                        <span className="bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 px-1 rounded-[3px] font-bold uppercase">
-                          Em progresso
-                        </span>
-                      )}
-                    </div>
-                  </Link>
+                    <Link
+                      to={`/interviews/session/${item.id}`}
+                      className={`flex-1 flex flex-col px-4 py-2 pr-8 text-sm ${isActive ? 'text-white' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      <span className="font-medium truncate" title={displayName}>{displayName}</span>
+                      <div className="flex items-center justify-between mt-1 text-[10px]">
+                        <span className="text-zinc-500">{new Date(item.createdAt).toLocaleDateString('pt-BR')}</span>
+                        {item.verdict ? (
+                          <span className={`px-1 rounded-[3px] font-bold uppercase ${item.verdict === 'APROVADO'
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                            }`}>
+                            {item.verdict}
+                          </span>
+                        ) : (
+                          <span className="bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 px-1 rounded-[3px] font-bold uppercase">
+                            Em progresso
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                    <button
+                      onClick={(e) => handleDelete(e, item.id)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+                      title="Excluir simulação"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 );
               })
             )}
@@ -114,6 +152,31 @@ export function Sidebar() {
           <span className="font-medium">Sair</span>
         </button>
       </div>
+
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-bold text-white mb-2">Excluir Simulação</h3>
+            <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
+              Tem certeza que deseja excluir esta simulação? Esta ação é permanente e não poderá ser desfeita.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-red-600 hover:bg-red-500 text-white transition-colors cursor-pointer"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -432,6 +432,12 @@ class InterviewService {
       },
     });
   }
+
+  async deleteInterview(interviewId: string) {
+    return prisma.interview.delete({
+      where: { id: interviewId },
+    });
+  }
 }
 
 export default new InterviewService();

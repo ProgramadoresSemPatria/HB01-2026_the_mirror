@@ -105,4 +105,9 @@ export const interviewApi = {
     request<InterviewDetails>(`/interview/details/${interviewId}`, {
       method: 'GET',
     }),
+
+  delete: (interviewId: string) =>
+    request<{ message: string }>(`/interview/${interviewId}`, {
+      method: 'DELETE',
+    }),
 };

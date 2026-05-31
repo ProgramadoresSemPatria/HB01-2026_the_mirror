@@ -9,15 +9,9 @@ import {
   Failure,
   Scorecard,
   Diagnosis,
-  InterviewResponse
+  InterviewResponse,
+  Turn
 } from '../api/interview'
-
-interface Turn {
-  role: 'interviewer' | 'candidate'
-  content: string
-  diagnosis?: Diagnosis
-  feedback?: string
-}
 
 type AppState = 'SETUP' | 'INTERVIEW' | 'VERDICT'
 
@@ -372,15 +366,12 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
   const [isLoading, setIsLoading] = useState(false)
   const [verdict, setVerdict] = useState<{ scorecard: Scorecard; diagnosis: Diagnosis } | null>(null)
   const [interviewId, setInterviewId] = useState<string | null>(null)
-  const { scenarioSlug } = useParams()
+  const { scenarioSlug, interviewId: sessionInterviewId } = useParams()
   const navigate = useNavigate()
   const startedSlugRef = useRef<string | null>(null)
 
   const handleStart = async (selectedScenario: string) => {
-    setScenario(selectedScenario)
     setIsLoading(true)
-    setAppState('INTERVIEW')
-
     try {
       const data = await interviewApi.start({
         scenario: selectedScenario,
@@ -388,21 +379,11 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
       })
 
       if (data.interviewId) {
-        setInterviewId(data.interviewId)
+        navigate(`/interviews/session/${data.interviewId}`, { replace: true })
       }
-
-      setTurns([{
-        role: 'interviewer',
-        content: data.nextInterviewerMessage,
-        diagnosis: data.diagnosis,
-      }])
-
-      if (data.isFinalVerdict && data.finalScorecard) {
-        setVerdict({ scorecard: data.finalScorecard, diagnosis: data.diagnosis })
-        setAppState('VERDICT')
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao iniciar simulação')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao iniciar simulação'
+      toast.error(message)
       setAppState('SETUP')
     } finally {
       setIsLoading(false)
@@ -444,8 +425,9 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
         setVerdict({ scorecard: data.finalScorecard, diagnosis: data.diagnosis })
         setTimeout(() => setAppState('VERDICT'), 1800)
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao enviar mensagem')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao enviar mensagem'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -462,6 +444,43 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
   }
 
   useEffect(() => {
+    if (sessionInterviewId) {
+      setIsLoading(true)
+      interviewApi.getDetails(sessionInterviewId)
+        .then((data) => {
+          setInterviewId(data.id)
+          setScenario(data.scenario.title)
+          setTurns(data.history)
+          if (data.currentStep === 'VERDICT') {
+            setVerdict({
+              scorecard: {
+                scenarioTitle: data.scenario.title,
+                finalScore: data.score ?? 0,
+                failures: data.failures ?? [],
+              },
+              diagnosis: {
+                gapDetected: data.gapDetected ?? 'NONE',
+                evidenceSpan: data.evidence ?? '',
+                note: data.note ?? '',
+              }
+            })
+            setAppState('VERDICT')
+          } else {
+            setVerdict(null)
+            setAppState('INTERVIEW')
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          toast.error('Erro ao carregar detalhes da simulação')
+          setAppState('SETUP')
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+      return
+    }
+
     if (!scenarioSlug) {
       startedSlugRef.current = null
       setAppState('SETUP')
@@ -483,7 +502,7 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
     setVerdict(null)
     setInterviewId(null)
     handleStart(selectedScenario.label)
-  }, [scenarioSlug])
+  }, [scenarioSlug, sessionInterviewId])
 
   return (
     <div className="mirror-root">

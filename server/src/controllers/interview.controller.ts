@@ -91,6 +91,23 @@ class InterviewController {
       res.status(500).json({ error: 'Failed to fetch interview details' });
     }
   }
+
+  async deleteInterview(req: Request, res: Response): Promise<void> {
+    try {
+      const { interviewId } = req.params;
+      if (!interviewId) {
+        res.status(400).json({ error: 'Id da simulação é obrigatório' });
+        return;
+      }
+
+      await interviewService.deleteInterview(interviewId);
+      res.status(200).json({ message: 'Simulação deletada com sucesso' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[Server] Deleting interview failed:', message);
+      res.status(500).json({ error: 'Failed to delete interview' });
+    }
+  }
 }
 
 const interviewController = new InterviewController();

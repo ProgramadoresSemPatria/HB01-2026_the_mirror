@@ -7,5 +7,6 @@ interviewRouter.post('/start', interviewController.startInterview);
 interviewRouter.post('/message', interviewController.sendInterviewMessage);
 interviewRouter.get('/history/:userId', interviewController.getInterviewHistory);
 interviewRouter.get('/details/:interviewId', interviewController.getInterviewDetails);
+interviewRouter.delete('/:interviewId', interviewController.deleteInterview);
 
 export default interviewRouter;
