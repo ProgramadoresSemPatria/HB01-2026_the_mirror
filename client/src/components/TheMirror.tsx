@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Database, Zap, Lock, Rocket, HardDrive, LineChart, ShieldCheck } from 'lucide-react'
+import { Database, Zap, Lock, Rocket, HardDrive, LineChart, ShieldCheck, ArrowRight } from 'lucide-react'
 import {
   interviewApi,
   GapType,
@@ -234,15 +234,16 @@ function InterviewScreen({
               handleSend()
             }
           }}
-          rows={3}
+          rows={1}
           disabled={isLoading}
         />
         <button
           className="mirror-send-btn"
           disabled={!input.trim() || isLoading}
           onClick={handleSend}
+          aria-label="Enviar"
         >
-          Enviar ↑
+          <ArrowRight size={20} />
         </button>
       </div>
     </div>
