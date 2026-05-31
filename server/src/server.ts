@@ -8,11 +8,14 @@ const PORT = envService.getEnv('PORT') || '3000';
 
 app.use(express.json());
 
-const isDevelopment = envService.getEnv('NODE_ENV') !== 'production';
-const frontendUrl = envService.getEnv('FRONTEND_URL') || 'http://localhost:5173';
-
 app.use(cors({
-  origin: isDevelopment ? 'http://localhost:5173' : frontendUrl,
+  origin: (origin, callback) => {
+    if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
