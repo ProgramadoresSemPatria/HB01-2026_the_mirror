@@ -99,6 +99,18 @@ function App() {
               )
             }
           />
+          <Route
+            path="/interviews/session/:interviewId"
+            element={
+              session ? (
+                <Layout>
+                  <TheMirrorPage userId={session.user.id} />
+                </Layout>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
           <Route path="/interview" element={<Navigate to="/interviews" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
