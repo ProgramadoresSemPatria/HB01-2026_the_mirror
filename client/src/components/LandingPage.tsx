@@ -7,7 +7,9 @@ import {
   WarningCircleIcon,
   ListIcon,
   XIcon,
-  ArrowDownIcon
+  ArrowDownIcon,
+  DatabaseIcon,
+  QueueIcon
 } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 
@@ -196,6 +198,17 @@ function ChallengeCard({
   challenge: Challenge;
   onSelect: (c: Challenge) => void;
 }) {
+  const IconComponent = (() => {
+    switch (challenge.id) {
+      case 'query-optimization':
+        return DatabaseIcon;
+      case 'memory-overflow':
+        return QueueIcon;
+      default:
+        return DatabaseIcon;
+    }
+  })();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -209,13 +222,18 @@ function ChallengeCard({
       id={`challenge-card-${challenge.id}`}
       onKeyDown={(e) => e.key === 'Enter' && onSelect(challenge)}
     >
-      {/* Header — Icons removed per user request */}
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">{challenge.title}</h3>
-          <p className="text-xs text-text-muted">{challenge.stack}</p>
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="rounded-xl border border-border bg-surface p-2.5 text-text-muted transition-colors group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary">
+            {IconComponent && <IconComponent size={24} weight="regular" />}
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">{challenge.title}</h3>
+            <p className="text-xs text-text-muted">{challenge.stack}</p>
+          </div>
         </div>
-        <span className={`rounded-full border border-border px-3 py-1 text-xs font-medium ${challenge.difficultyColor}`}>
+        <span className={`self-start sm:self-auto rounded-full border border-border px-3 py-1 text-xs font-medium ${challenge.difficultyColor}`}>
           {challenge.difficulty}
         </span>
       </div>
@@ -236,7 +254,7 @@ function ChallengeCard({
       </div>
 
       {/* CTA */}
-      <div className="flex items-center gap-2 text-sm font-medium text-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+      <div className="flex items-center gap-2 text-sm font-medium text-primary opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100">
         <ChatCircleDotsIcon size={16} weight="fill" />
         <span>Entrar na entrevista →</span>
       </div>
@@ -255,13 +273,12 @@ function ChatBubble({ message, index }: { message: Message; index: number }) {
       className={`flex flex-col gap-1 ${isInterviewer ? 'items-start' : 'items-end'}`}
     >
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-          isInterviewer
-            ? 'rounded-tl-sm bg-surface text-foreground'
-            : message.hasGap
-              ? 'rounded-tr-sm border border-error/30 bg-error/10 text-foreground'
-              : 'rounded-tr-sm bg-primary/15 text-foreground'
-        }`}
+        className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${isInterviewer
+          ? 'rounded-tl-sm bg-surface text-foreground'
+          : message.hasGap
+            ? 'rounded-tr-sm border border-error/30 bg-error/10 text-foreground'
+            : 'rounded-tr-sm bg-primary/15 text-foreground'
+          }`}
       >
         {message.content}
       </div>
@@ -330,7 +347,7 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative mx-auto max-w-4xl w-full">
       <AnimatePresence mode="wait">
         {/* State: Setup */}
         {appState === 'setup' && (
@@ -349,9 +366,6 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
               transition={{ duration: 0.6 }}
               className="mb-12 text-center"
             >
-              <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
-                Escolha seu Desafio
-              </span>
               <SectionHeading>
                 Problemas reais de produção.
                 <span className="text-primary"> Sem filtro.</span>
@@ -387,17 +401,26 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
             transition={{ duration: 0.5 }}
           >
             {/* Interview header */}
-            <div className="mb-6 flex items-center justify-between">
-              <button
-                onClick={handleReset}
-                className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-foreground cursor-pointer"
-                id="btn-back-to-setup"
-              >
-                <ArrowLeftIcon size={16} />
-                Voltar
-              </button>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-foreground cursor-pointer"
+                  id="btn-back-to-setup"
+                >
+                  <ArrowLeftIcon size={16} />
+                  Voltar
+                </button>
+                <button
+                  onClick={handleSkipToVerdict}
+                  className="text-xs text-text-muted transition-colors hover:text-error cursor-pointer sm:hidden"
+                  id="btn-skip-to-verdict-mobile"
+                >
+                  Encerrar →
+                </button>
+              </div>
               {selectedChallenge && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-auto">
                   <span className="text-sm font-medium text-foreground">{selectedChallenge.title}</span>
                   <span className={`rounded-full border border-border px-2.5 py-0.5 text-xs ${selectedChallenge.difficultyColor}`}>
                     {selectedChallenge.difficulty}
@@ -406,7 +429,7 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
               )}
               <button
                 onClick={handleSkipToVerdict}
-                className="text-xs text-text-muted transition-colors hover:text-error cursor-pointer"
+                className="hidden sm:inline-block text-xs text-text-muted transition-colors hover:text-error cursor-pointer"
                 id="btn-skip-to-verdict"
               >
                 Encerrar sessão →
@@ -517,9 +540,9 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
                     <span className={`text-xs ${item.passed ? 'text-success' : 'text-error'}`}>
                       {item.passed ? '✓' : '✗'}
                     </span>
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
                       <span className="text-sm text-foreground">{item.label}</span>
-                      <span className="ml-2 text-xs text-text-muted">— {item.note}</span>
+                      <span className="text-xs text-text-muted">— {item.note}</span>
                     </div>
                   </motion.div>
                 ))}
@@ -586,7 +609,7 @@ export default function LandingPage() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut', delay: 1 }}
-        className="fixed top-0 left-0 z-50 w-full bg-linear-to-b from-black via-black/60 to-transparent md:py-2"
+        className="fixed top-0 left-0 z-50 w-full bg-background/70 backdrop-blur-md border-b border-border/40 md:py-1"
       >
         <Container>
           <div className="relative flex items-center justify-between py-4">
@@ -668,7 +691,7 @@ export default function LandingPage() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section className="flex justify-center pt-28 sm:pt-36 lg:pt-40">
+      <section className="flex justify-center pt-28 sm:pt-36 lg:pt-40 pb-8 sm:pb-12 lg:pb-16">
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center">
           {/* Hero Headline */}
           <motion.h1
@@ -677,7 +700,8 @@ export default function LandingPage() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mb-3 text-4xl leading-tight font-medium text-foreground sm:text-5xl md:text-6xl lg:text-7xl font-headline"
           >
-            Todo simulador de entrevista te elogia.{' '}
+            Todo simulador de entrevista te elogia.
+            <br className="hidden sm:inline" />
             <span className="text-primary">O nosso te reprova.</span>
           </motion.h1>
 
@@ -729,19 +753,16 @@ export default function LandingPage() {
       <section
         id="como-funciona"
         ref={revealRef}
-        className="relative bg-background pt-12 pb-24"
+        className="relative bg-background pt-20 sm:pt-28 pb-24"
       >
         <Container className="relative">
           {/* Header */}
-          <MotionDiv isInView={revealInView} className="pb-16 text-center">
-            <span className="mb-4 inline-block rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
-              Como Funciona
-            </span>
+          <MotionDiv isInView={revealInView} className="pb-8 text-center">
             <SectionHeading>
               Três etapas. Sem elogios.
             </SectionHeading>
             <SectionDescription>
-              O Mirror te coloca em uma sessão adversarial real. O entrevistador não para de pressionar até encontrar seus gaps.
+              O The Mirror te coloca em uma sessão adversarial real. O entrevistador não para de pressionar até encontrar seus gaps.
             </SectionDescription>
           </MotionDiv>
 
@@ -753,15 +774,19 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={revealInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="rounded-3xl border bg-background/2 p-8 backdrop-blur-xs transition-[background-color,box-shadow] duration-200 hover:bg-primary/7 hover:shadow-[0_0_30px_rgba(56,189,248,0.07)]"
+                className="group relative overflow-hidden rounded-3xl border border-border bg-background/2 p-8 backdrop-blur-xs transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:shadow-[0_0_40px_rgba(56,189,248,0.08)]"
               >
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="text-4xl font-bold text-primary/20 font-headline">
+                <div className="mb-6">
+                  <span className="text-4xl font-black tracking-tight text-primary/20 font-mono">
                     {step.step}
                   </span>
                 </div>
-                <h3 className="mb-3 text-xl font-semibold text-foreground">{step.title}</h3>
-                <p className="leading-relaxed text-text-secondary">{step.description}</p>
+                <h3 className="mb-3 text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {step.title}
+                </h3>
+                <p className="leading-relaxed text-text-secondary text-sm">
+                  {step.description}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -778,25 +803,8 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border py-8 relative bg-background">
         <Container>
-          <div className="relative flex flex-col items-center justify-between gap-4 md:flex-row">
-            <Logo />
-
-            <nav className="flex items-center gap-6 text-sm text-text-secondary md:absolute md:left-1/2 md:-translate-x-1/2">
-              <a href="#como-funciona" className="transition-colors hover:text-foreground">
-                Como funciona
-              </a>
-              <a href="#desafios" className="transition-colors hover:text-foreground">
-                Desafios
-              </a>
-            </nav>
-
-            <div className="text-sm text-text-muted font-mono">
-              Simulações baseadas em produção real
-            </div>
-          </div>
-
-          <div className="mt-8 text-center text-sm text-text-muted font-mono">
-            © 2026 The Mirror · Simulador de Entrevistas Técnicas
+          <div className="text-center text-sm text-text-muted font-mono">
+            © 2026 The Mirror
           </div>
         </Container>
       </footer>
