@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import routes from './routes/routes';
 import envService from './services/env.service';
+import { errorHandler } from './middlewares/error.middleware';
 
 const app = express();
 const PORT = envService.getEnv('PORT') || '3000';
@@ -22,11 +23,14 @@ app.use(cors({
 }));
 
 // API Routes
-app.use('/api', routes)
+app.use('/api', routes);
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: "The Mirror API" });
 });
+
+// Centralized error handler
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);

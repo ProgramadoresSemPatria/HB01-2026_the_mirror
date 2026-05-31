@@ -54,6 +54,7 @@ model UserCredential {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("user_credentials")
 }
 
@@ -80,5 +81,7 @@ model Interview {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   scenario Scenario @relation(fields: [scenarioId], references: [id])
 
+  @@index([userId])
+  @@index([scenarioId])
   @@map("interviews")
 }
