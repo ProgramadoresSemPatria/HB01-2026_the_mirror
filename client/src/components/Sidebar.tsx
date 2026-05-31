@@ -112,14 +112,14 @@ export function Sidebar() {
                       <span className="font-medium truncate block text-xs tracking-tight" title={fullDisplayName}>{displayName}</span>
                       <div className="flex items-center justify-between mt-1 text-[9px] font-mono">
                         {item.verdict ? (
-                          <span className={`px-1.5 py-0.5 rounded-[4px] font-bold ${item.verdict === 'APROVADO'
+                          <span className={`px-1.5 py-0.5 rounded-[4px] font-bold uppercase ${item.verdict === 'APROVADO'
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                             }`}>
-                            {item.verdict === 'APROVADO' ? 'Aprovado' : 'Reprovado'}
+                            {item.verdict}
                           </span>
                         ) : (
-                          <span className="bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded-[4px] font-bold">
+                          <span className="bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded-[4px] font-bold uppercase">
                             Em progresso
                           </span>
                         )}
@@ -160,9 +160,9 @@ export function Sidebar() {
       {deleteConfirmId && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#080e1a] border border-[#162032] rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <h3 className="text-base font-bold text-white mb-2 font-mono uppercase tracking-wider">Excluir Simulação</h3>
+            <h3 className="text-base font-bold text-white mb-2 font-mono">Excluir entrevista</h3>
             <p className="text-zinc-400 text-xs mb-6 leading-relaxed">
-              Tem certeza que deseja excluir esta simulação? Esta ação é permanente e não poderá ser desfeita.
+              Tem certeza que deseja excluir esta entrevista? Esta ação é permanente e não poderá ser desfeita.
             </p>
             <div className="flex justify-end gap-3">
               <button
