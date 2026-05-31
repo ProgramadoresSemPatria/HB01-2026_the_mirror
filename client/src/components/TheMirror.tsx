@@ -93,10 +93,11 @@ function SetupScreen() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.6 }}
-        className="mirror-scenario-label"
-        style={{ fontSize: '2rem', fontWeight: 600, color: 'white', marginBottom: '1.5rem', textAlign: 'center', textTransform: 'none' }}
+        className="flex flex-col items-center text-center mt-4"
       >
-        Você realmente...
+        <h2 className="mirror-scenario-label" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'white', marginBottom: '6px', textTransform: 'none', letterSpacing: '-0.02em' }}>
+          Você realmente...
+        </h2>
       </motion.div>
 
       <div className="mirror-scenarios-grid">
@@ -106,18 +107,34 @@ function SetupScreen() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * i + 0.4, duration: 0.4 }}
-            className={`mirror-scenario-card flex items-start gap-4 p-4 rounded-xl text-left border ${s.locked ? 'opacity-40 cursor-not-allowed border-zinc-800 grayscale' : 'border-zinc-800 hover:border-zinc-600'
+            className={`mirror-scenario-card group relative flex items-start gap-4 p-4 rounded-xl text-left border transition-all ${s.locked
+                ? 'opacity-60 cursor-not-allowed border-[#162032] bg-[#04080f]/50 hover:opacity-100'
+                : 'border-zinc-800 hover:border-[#38bdf8]/30 hover:bg-[#38bdf8]/5'
               }`}
             onClick={() => !s.locked && navigate(`/interviews/${s.slug}`)}
-            disabled={s.locked}
           >
-            <span className="mirror-scenario-icon text-zinc-400 mt-1">{s.locked ? <Lock size={24} /> : s.icon}</span>
-            <div>
-              <div className="mirror-scenario-name text-white font-semibold flex items-center gap-2">
-                {s.label}
+            <div className={`flex items-start gap-4 w-full h-full transition-all duration-300 ${s.locked ? 'group-hover:blur-[3px] group-hover:opacity-30' : ''}`}>
+              <span className={`mirror-scenario-icon mt-1 ${s.locked ? 'text-[#38bdf8]/30' : 'text-zinc-400'}`}>
+                {s.locked ? <Lock size={20} /> : s.icon}
+              </span>
+              <div>
+                <div className={`mirror-scenario-name font-semibold flex items-center gap-2 ${s.locked ? 'text-zinc-500' : 'text-white'}`}>
+                  {s.label}
+                </div>
+                <div className={`text-sm mt-1 leading-relaxed ${s.locked ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                  {s.description}
+                </div>
               </div>
-              <div className="mirror-scenario-desc text-zinc-400 text-sm mt-1">{s.description}</div>
             </div>
+
+            {s.locked && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 rounded-xl">
+                <div className="text-xs text-zinc-300 font-mono flex items-center gap-1.5">
+                  <Lock size={13} className="text-[#38bdf8]" />
+                  Conteúdo bloqueado
+                </div>
+              </div>
+            )}
           </motion.button>
         ))}
       </div>
@@ -209,10 +226,10 @@ function InterviewScreen({
               )}
               <div className={`flex flex-col gap-2 max-w-full ${turn.role === 'candidate' ? 'items-end' : 'items-start'}`}>
                 <div className={`mirror-bubble ${turn.role === 'interviewer'
-                    ? 'mirror-bubble--interviewer'
-                    : turn.feedback
-                      ? 'mirror-bubble--candidate mirror-bubble--candidate-feedback'
-                      : 'mirror-bubble--candidate'
+                  ? 'mirror-bubble--interviewer'
+                  : turn.feedback
+                    ? 'mirror-bubble--candidate mirror-bubble--candidate-feedback'
+                    : 'mirror-bubble--candidate'
                   }`}>
                   <p>{turn.content}</p>
                   {turn.diagnosis && turn.diagnosis.gapDetected !== 'NONE' && (

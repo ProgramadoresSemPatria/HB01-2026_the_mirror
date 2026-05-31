@@ -7,10 +7,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-zinc-900 overflow-hidden">
+    <div className="flex h-screen bg-[#04080f] overflow-hidden">
       <button
         onClick={() => setIsMobileMenuOpen(true)}
-        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-zinc-800 text-white hover:bg-zinc-700 transition-opacity ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-[#080e1a] text-white hover:bg-[#0d1625] border border-[#162032] transition-opacity ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
         <Menu className="w-6 h-6" />
       </button>
