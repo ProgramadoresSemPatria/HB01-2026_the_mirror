@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Database, Zap, Lock, Rocket, HardDrive, LineChart, ShieldCheck, ArrowRight } from 'lucide-react'
+import { Database, Zap, Lock, Rocket, HardDrive, LineChart, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react'
 import {
   interviewApi,
   GapType,
@@ -16,6 +16,7 @@ interface Turn {
   role: 'interviewer' | 'candidate'
   content: string
   diagnosis?: Diagnosis
+  feedback?: string
 }
 
 type AppState = 'SETUP' | 'INTERVIEW' | 'VERDICT'
@@ -198,13 +199,28 @@ function InterviewScreen({
                   <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                 </div>
               )}
-              <div className={`mirror-bubble ${turn.role === 'interviewer' ? 'mirror-bubble--interviewer' : 'mirror-bubble--candidate'}`}>
-                <p>{turn.content}</p>
-                {turn.diagnosis && turn.diagnosis.gapDetected !== 'NONE' && (
-                  <div className="mirror-gap-tag" style={{ borderColor: GAP_COLORS[turn.diagnosis.gapDetected] }}>
-                    <span style={{ color: GAP_COLORS[turn.diagnosis.gapDetected] }}>
-                      ⚑ {GAP_LABELS[turn.diagnosis.gapDetected]}
-                    </span>
+              <div className={`flex flex-col gap-2 max-w-full ${turn.role === 'candidate' ? 'items-end' : 'items-start'}`}>
+                <div className={`mirror-bubble ${
+                  turn.role === 'interviewer' 
+                    ? 'mirror-bubble--interviewer' 
+                    : turn.feedback 
+                      ? 'mirror-bubble--candidate mirror-bubble--candidate-feedback' 
+                      : 'mirror-bubble--candidate'
+                }`}>
+                  <p>{turn.content}</p>
+                  {turn.diagnosis && turn.diagnosis.gapDetected !== 'NONE' && (
+                    <div className="mirror-gap-tag" style={{ borderColor: GAP_COLORS[turn.diagnosis.gapDetected] }}>
+                      <span style={{ color: GAP_COLORS[turn.diagnosis.gapDetected] }}>
+                        ⚑ {GAP_LABELS[turn.diagnosis.gapDetected]}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {turn.role === 'candidate' && turn.feedback && (
+                  <div className="mirror-feedback-box">
+                    <AlertCircle className="mirror-feedback-icon" size={16} />
+                    <span>{turn.feedback}</span>
                   </div>
                 )}
               </div>
@@ -392,7 +408,7 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
     setIsLoading(true)
 
     try {
-      const historyPayload = turns.map(t => ({ role: t.role, content: t.content }))
+      const historyPayload = turns.map(t => ({ role: t.role, content: t.content, feedback: t.feedback }))
 
       const data = await interviewApi.sendMessage({
         interviewId,
@@ -403,7 +419,12 @@ export default function TheMirrorPage({ userId }: { userId?: string }) {
       })
 
       const updatedTurns: Turn[] = [
-        ...newTurns,
+        ...turns,
+        {
+          role: 'candidate',
+          content: msg,
+          feedback: data.feedback,
+        },
         {
           role: 'interviewer',
           content: data.nextInterviewerMessage,

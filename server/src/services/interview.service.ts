@@ -64,6 +64,9 @@ const sanitizeRawResponse = (raw: unknown): Record<string, unknown> => {
     nextInterviewerMessage: typeof raw['nextInterviewerMessage'] === 'string'
       ? raw['nextInterviewerMessage'].trim()
       : "",
+    feedback: typeof raw['feedback'] === 'string'
+      ? raw['feedback'].trim()
+      : null,
     diagnosis: {
       gapDetected: gap,
       evidenceSpan: rawDiagnosis && typeof rawDiagnosis['evidenceSpan'] === 'string'
@@ -344,7 +347,7 @@ class InterviewService {
 
     const updatedHistory = [
       ...history,
-      { role: 'candidate', content: candidateMessage },
+      { role: 'candidate', content: candidateMessage, feedback: result.feedback },
       { role: 'interviewer', content: result.nextInterviewerMessage }
     ];
 
