@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import Auth from './components/Auth';
 import { Layout } from './components/Layout';
 import TheMirrorPage from './components/TheMirror';
+import LandingPage from './components/LandingPage';
 import './App.css';
 
 interface UserSession {
@@ -61,7 +62,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route
             path="/login"
             element={

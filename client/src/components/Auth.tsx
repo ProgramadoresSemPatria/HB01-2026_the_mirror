@@ -133,7 +133,7 @@ export default function Auth({ onAuthSuccess }: { onAuthSuccess: (data: AuthResp
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-zinc-700 text-white placeholder-zinc-400"
+                  className="w-full px-3 py-2 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#38bdf8] bg-zinc-700 text-white placeholder-zinc-400"
                 />
               </div>
             )}
@@ -144,7 +144,7 @@ export default function Auth({ onAuthSuccess }: { onAuthSuccess: (data: AuthResp
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-zinc-700 text-white placeholder-zinc-400"
+                className="w-full px-3 py-2 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#38bdf8] bg-zinc-700 text-white placeholder-zinc-400"
               />
             </div>
             <div>
@@ -155,13 +155,13 @@ export default function Auth({ onAuthSuccess }: { onAuthSuccess: (data: AuthResp
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
                   required
-                  className="w-full px-3 py-2 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-zinc-700 text-white placeholder-zinc-400"
+                  className="w-full px-3 py-2 border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#38bdf8] bg-zinc-700 text-white placeholder-zinc-400"
                 />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-zinc-600 disabled:cursor-not-allowed transition-colors font-semibold"
+              className="w-full bg-[#38bdf8] text-[#020d18] py-2 px-4 rounded-md hover:bg-[#7dd3fc] focus:outline-none focus:ring-2 focus:ring-[#38bdf8] disabled:bg-zinc-600 disabled:cursor-not-allowed transition-colors font-semibold"
             >
               {loading ? 'Processando...' : isSignUp ? 'Cadastrar' : 'Entrar'}
             </button>
