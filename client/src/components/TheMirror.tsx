@@ -106,9 +106,8 @@ function SetupScreen() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * i + 0.4, duration: 0.4 }}
-            className={`mirror-scenario-card flex items-start gap-4 p-4 rounded-xl text-left border ${
-              s.locked ? 'opacity-40 cursor-not-allowed border-zinc-800 grayscale' : 'border-zinc-800 hover:border-zinc-600'
-            }`}
+            className={`mirror-scenario-card flex items-start gap-4 p-4 rounded-xl text-left border ${s.locked ? 'opacity-40 cursor-not-allowed border-zinc-800 grayscale' : 'border-zinc-800 hover:border-zinc-600'
+              }`}
             onClick={() => !s.locked && navigate(`/interviews/${s.slug}`)}
             disabled={s.locked}
           >
@@ -194,13 +193,12 @@ function InterviewScreen({
                 </div>
               )}
               <div className={`flex flex-col gap-2 max-w-full ${turn.role === 'candidate' ? 'items-end' : 'items-start'}`}>
-                <div className={`mirror-bubble ${
-                  turn.role === 'interviewer' 
-                    ? 'mirror-bubble--interviewer' 
-                    : turn.feedback 
-                      ? 'mirror-bubble--candidate mirror-bubble--candidate-feedback' 
+                <div className={`mirror-bubble ${turn.role === 'interviewer'
+                    ? 'mirror-bubble--interviewer'
+                    : turn.feedback
+                      ? 'mirror-bubble--candidate mirror-bubble--candidate-feedback'
                       : 'mirror-bubble--candidate'
-                }`}>
+                  }`}>
                   <p>{turn.content}</p>
                   {turn.diagnosis && turn.diagnosis.gapDetected !== 'NONE' && (
                     <div className="mirror-gap-tag" style={{ borderColor: GAP_COLORS[turn.diagnosis.gapDetected] }}>
@@ -288,14 +286,14 @@ function VerdictScreen({
   return (
     <div className="mirror-verdict">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, scale: 0.98, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         className="mirror-verdict-card"
       >
         {/* Header */}
         <div className="mirror-verdict-header" style={{
-          background: finalScore >= 70 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(220, 38, 38, 0.15)'
+          background: finalScore >= 70 ? 'rgba(34, 197, 94, 0.05)' : 'rgba(220, 38, 38, 0.05)'
         }}>
           <div className="mirror-verdict-stamp" style={{
             color: finalScore >= 70 ? '#22c55e' : 'var(--mirror-accent)',
@@ -303,8 +301,7 @@ function VerdictScreen({
           }}>
             {finalScore >= 70 ? 'APROVADO' : 'REPROVADO'}
           </div>
-          <h2 className="mirror-verdict-title">{scenarioTitle}</h2>
-          <p className="mirror-verdict-subtitle">Relatório de Performance Técnica</p>
+          <h2 className="mirror-verdict-title">Relatório de Performance</h2>
         </div>
 
         {/* Score */}
@@ -323,61 +320,81 @@ function VerdictScreen({
               <p className="mirror-verdict-note">{diagnosis.note}</p>
             )}
             {diagnosis.evidenceSpan && (
-              <blockquote className="mirror-evidence">"{diagnosis.evidenceSpan}"</blockquote>
+              <div className="mirror-evidence-container" style={{ borderColor: GAP_COLORS[diagnosis.gapDetected] }}>
+                <div className="mirror-evidence-label" style={{ color: GAP_COLORS[diagnosis.gapDetected] }}>Evidência Citada</div>
+                <blockquote className="mirror-evidence-quote">"{diagnosis.evidenceSpan}"</blockquote>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Successes checklist */}
-        {successesList.length > 0 && (
-          <div className="mirror-successes">
-            <h3 className="mirror-successes-title">Pontos Fortes / Acertos</h3>
-            <div className="mirror-successes-list">
-              {successesList.map((s, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.15 * i + 0.2, duration: 0.4 }}
-                  className="mirror-success-item"
-                >
-                  <div className="mirror-success-dot" />
-                  <div>
-                    <div className="mirror-success-criterion">{s.criterion}</div>
-                    <div className="mirror-success-desc">{s.description}</div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+        {/* Analysis Grid (Side by side) */}
+        <div className="mirror-verdict-details-grid">
+          {/* Successes Column */}
+          <div className="mirror-successes-column">
+            <h3 className="mirror-column-title successes">
+              <ShieldCheck size={16} />
+              Pontos Fortes
+            </h3>
+            {successesList.length > 0 ? (
+              <div className="mirror-list-items">
+                {successesList.map((s, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * i + 0.2, duration: 0.3 }}
+                    className="mirror-detail-item"
+                  >
+                    <div className="mirror-detail-dot success" />
+                    <div>
+                      <div className="mirror-detail-criterion">{s.criterion}</div>
+                      <div className="mirror-detail-desc">{s.description}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="mirror-verdict-note" style={{ fontStyle: 'italic' }}>Nenhum ponto forte relevante identificado.</p>
+            )}
           </div>
-        )}
 
-        {/* Failures checklist */}
-        <div className="mirror-failures">
-          <h3 className="mirror-failures-title">Falhas Identificadas</h3>
-          <div className="mirror-failures-list">
-            {failuresList.map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 * i + 0.3, duration: 0.4 }}
-                className="mirror-failure-item"
-              >
-                <div className="mirror-failure-dot" />
-                <div>
-                  <div className="mirror-failure-criterion">{f.criterion}</div>
-                  <div className="mirror-failure-desc">{f.description}</div>
-                </div>
-              </motion.div>
-            ))}
+          {/* Failures Column */}
+          <div className="mirror-failures-column">
+            <h3 className="mirror-column-title failures">
+              <AlertCircle size={16} />
+              Falhas Identificadas
+            </h3>
+            {failuresList.length > 0 ? (
+              <div className="mirror-list-items">
+                {failuresList.map((f, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * i + 0.3, duration: 0.3 }}
+                    className="mirror-detail-item"
+                  >
+                    <div className="mirror-detail-dot failure" />
+                    <div>
+                      <div className="mirror-detail-criterion">{f.criterion}</div>
+                      <div className="mirror-detail-desc">{f.description}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="mirror-verdict-note" style={{ fontStyle: 'italic', color: '#22c55e' }}>Nenhuma falha técnica crítica detectada!</p>
+            )}
           </div>
         </div>
 
         {/* Restart */}
-        <button className="mirror-restart-btn" onClick={onRestart}>
-          ↺ Nova Simulação
-        </button>
+        <div style={{ padding: '24px 32px', display: 'flex', justifyContent: 'flex-end', background: 'rgba(0,0,0,0.1)' }}>
+          <button className="mirror-restart-btn" onClick={onRestart} style={{ margin: 0 }}>
+            ↺ Nova Simulação
+          </button>
+        </div>
       </motion.div>
     </div>
   )
