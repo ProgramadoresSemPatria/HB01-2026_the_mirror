@@ -350,9 +350,9 @@ class InterviewService {
     const interviewerQuestionsCount = history.filter((turn) => turn.role === 'interviewer').length;
     const forceVerdict = interviewerQuestionsCount >= MAX_INTERVIEW_QUESTIONS;
 
-    // To prevent exceeding tokens per minute (TPM) limits, we send the complete history only for the final verdict.
-    // During the active interview, we limit the context sent to Groq to the last 4 turns.
-    const historyToUse = forceVerdict ? history : history.slice(-4);
+    // To preserve conversational context and avoid repetitive questions while preventing token limits,
+    // we send up to the last 12 turns during the active interview.
+    const historyToUse = forceVerdict ? history : history.slice(-12);
 
     const contents = [
       ...historyToUse.map((turn) => ({
