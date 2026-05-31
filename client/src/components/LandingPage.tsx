@@ -31,6 +31,17 @@ function SectionHeading({ children, className, ...props }: React.ComponentProps<
   );
 }
 
+function SectionDescription({ children, className, ...props }: React.ComponentProps<'p'>) {
+  return (
+    <p
+      className={cn('mx-auto my-2.5 max-w-prose text-lg text-pretty text-text-secondary lg:text-xl', className)}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+}
+
 // Logo brand
 function Logo() {
   return (
@@ -278,9 +289,63 @@ export default function LandingPage() {
         )}
       </AnimatePresence>
 
-      <main className="pt-24">
-        {/* Placeholder for sections */}
-      </main>
+      {/* Hero Section */}
+      <section className="flex justify-center pt-28 sm:pt-36 lg:pt-40">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center">
+          {/* Hero Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mb-3 text-4xl leading-tight font-medium text-foreground sm:text-5xl md:text-6xl lg:text-7xl font-headline"
+          >
+            Todo simulador de entrevista te elogia.{' '}
+            <span className="text-primary">O nosso te reprova.</span>
+          </motion.h1>
+
+          {/* Hero Subtitle */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="mb-8"
+          >
+            <SectionDescription>
+              Um simulador de entrevista técnica que não te poupa.
+              A IA detecta seus gaps em tempo real e entrega um scorecard de reprovação
+              detalhado ao final.
+            </SectionDescription>
+          </motion.div>
+
+          {/* Hero CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="flex flex-col items-center gap-4 sm:flex-row"
+          >
+            <a
+              href="#desafios"
+              id="cta-start-simulation"
+              className="group inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary-hover hover:shadow-[0_0_30px_rgba(56,189,248,0.3)]"
+            >
+              Escolher um Desafio
+              <ArrowDownIcon
+                size={16}
+                weight="bold"
+                className="transition-transform group-hover:translate-y-1"
+              />
+            </a>
+            <a
+              href="#como-funciona"
+              id="cta-how-it-works"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-8 py-3 text-base font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-foreground"
+            >
+              Como funciona?
+            </a>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="border-t border-border py-8 relative bg-background">
