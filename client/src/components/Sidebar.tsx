@@ -112,14 +112,14 @@ export function Sidebar() {
                       <span className="font-medium truncate block text-xs tracking-tight" title={fullDisplayName}>{displayName}</span>
                       <div className="flex items-center justify-between mt-1 text-[9px] font-mono">
                         {item.verdict ? (
-                          <span className={`px-1.5 py-0.5 rounded-[4px] font-bold uppercase ${item.verdict === 'APROVADO'
+                          <span className={`px-1.5 py-0.5 rounded-[4px] font-bold ${item.verdict === 'APROVADO'
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                             }`}>
-                            {item.verdict}
+                            {item.verdict === 'APROVADO' ? 'Aprovado' : 'Reprovado'}
                           </span>
                         ) : (
-                          <span className="bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded-[4px] font-bold uppercase">
+                          <span className="bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded-[4px] font-bold">
                             Em progresso
                           </span>
                         )}
@@ -129,7 +129,7 @@ export function Sidebar() {
                     <button
                       onClick={(e) => handleDelete(e, item.id)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-rose-400 hover:bg-[#162032] rounded opacity-0 group-hover:opacity-100 transition-all z-10 cursor-pointer border-none bg-transparent"
-                      title="Excluir simulação"
+                      title="Excluir entrevista"
                     >
                       <Trash2 size={13} />
                     </button>
