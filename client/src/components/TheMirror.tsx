@@ -186,7 +186,7 @@ function InterviewScreen({
       <div className="mirror-interview-header">
         <div className="mirror-logo-sm">
           <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
-          <span className="mirror-title-sm">Simulador</span>
+          <span className="mirror-title-sm">Entrevista</span>
         </div>
         <div className="mirror-interview-scenario">
           <span className="mirror-scenario-pill">{scenario}</span>

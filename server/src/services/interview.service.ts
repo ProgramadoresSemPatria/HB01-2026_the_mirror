@@ -132,7 +132,12 @@ const getSystemPromptTemplate = (): string => {
 };
 
 // Rebuilds the system prompt template by replacing markdown placeholders using global regular expressions
-const buildSystemPrompt = (scenario: string, forceVerdict: boolean = false): string => {
+const buildSystemPrompt = (
+  scenario: string,
+  forceVerdict: boolean = false,
+  sector?: string,
+  constraint?: string
+): string => {
   const definition = getScenarioDefinition(scenario);
   
   const scopeStr = definition.rules.scope;
@@ -141,6 +146,10 @@ const buildSystemPrompt = (scenario: string, forceVerdict: boolean = false): str
     : '';
   const avoidStr = definition.rules.avoid 
     ? `Evite abordar ou aceitar desvios para: ${definition.rules.avoid.join(', ')} (a menos que o candidato os traga ativamente).` 
+    : '';
+
+  const contextStr = sector && constraint
+    ? `\nCaso de uso operacional e de negócio: ${sector}.\nRestrição/detalhe de arquitetura: ${constraint}.\nVocê DEVE basear suas perguntas, incidentes e provocações estritamente nesse caso de uso operacional e restrição técnica.`
     : '';
 
   const verdictInstruction = forceVerdict 
@@ -154,7 +163,7 @@ Não faça novas perguntas. Forneça o scorecard completo (finalScorecard) e o v
     .replace(/\{\{scenarioDescription\}\}/g, definition.description)
     .replace(/\{\{maxQuestions\}\}/g, String(MAX_INTERVIEW_QUESTIONS))
     .replace(/\{\{verdictInstruction\}\}/g, verdictInstruction)
-    .replace(/\{\{scope\}\}/g, scopeStr)
+    .replace(/\{\{scope\}\}/g, scopeStr + contextStr)
     .replace(/\{\{focus\}\}/g, focusStr)
     .replace(/\{\{avoid\}\}/g, avoidStr);
 };
@@ -274,28 +283,41 @@ const ARCHITECTURAL_CONSTRAINTS = [
   'necessidade de criptografia ponta a ponta em trânsito e em repouso de todas as colunas sensíveis'
 ];
 
+const RANDOM_STARTING_ANGLES = [
+  'Comece descrevendo um incidente de produção real que acabou de acontecer (ex: alertas de erro disparando, latência de escrita subindo drasticamente) relacionado ao cenário, e peça para o candidato propor a primeira ação de depuração.',
+  'Comece descrevendo uma nova funcionalidade crítica que precisa ser colocada em produção hoje à noite sob a restrição dada, e questione o candidato sobre o design arquitetural inicial para evitar downtime ou brechas.',
+  'Comece apontando um antipadrão/erro comum que um desenvolvedor júnior anterior deixou no código desse cenário (ex: salvar credencial em plaintext, query sem índice, JWT sem assinatura) e peça para o candidato identificar a falha e propor a correção.',
+  'Comece descrevendo uma decisão de design de infraestrutura controversa adotada no projeto (ex: cachear tudo sem expiração, pooling de conexão desabilitado) que está gerando lentidão no negócio, e peça para o candidato justificar se a abordagem faz sentido ou como redesenhá-la.'
+];
+
 class InterviewService {
   async startInterview(scenario: string, userId?: string): Promise<InterviewResponse> {
     const randomSector = BUSINESS_SECTORS[Math.floor(Math.random() * BUSINESS_SECTORS.length)];
     const randomConstraint = ARCHITECTURAL_CONSTRAINTS[Math.floor(Math.random() * ARCHITECTURAL_CONSTRAINTS.length)];
+    const randomAngle = RANDOM_STARTING_ANGLES[Math.floor(Math.random() * RANDOM_STARTING_ANGLES.length)];
 
     const contents = [
       {
         role: 'user',
         parts: [{ 
-          text: `Inicie a entrevista sobre o cenário: ${scenario}. O caso de uso operacional e de negócio é: ${randomSector}, sob a restrição/detalhe de: ${randomConstraint}. Use essa contextualização para variar a história e a pergunta prática inicial de forma realista.` 
+          text: `Inicie a entrevista sobre o cenário: ${scenario}. O caso de uso operacional e de negócio é: ${randomSector}, sob a restrição/detalhe de: ${randomConstraint}. Diretriz de início: ${randomAngle}` 
         }],
       },
     ];
 
-    const rawText = await ai.sendPrompt(contents, buildSystemPrompt(scenario, false));
+    const rawText = await ai.sendPrompt(contents, buildSystemPrompt(scenario, false, randomSector, randomConstraint));
     const result = extractAndParseJson(rawText);
 
     const scenarioRecord = await ensureScenario(scenario);
     const verifiedUserId = await ensureUserId(userId);
 
     const historyJson: Prisma.InputJsonValue = JSON.parse(
-      JSON.stringify([{ role: 'interviewer', content: result.nextInterviewerMessage }])
+      JSON.stringify([{
+        role: 'interviewer',
+        content: result.nextInterviewerMessage,
+        sector: randomSector,
+        constraint: randomConstraint
+      }])
     );
 
     const interview = await prisma.interview.create({
@@ -320,17 +342,25 @@ class InterviewService {
     userId?: string
   ): Promise<InterviewResponse> {
     let currentInterviewId = interviewId;
+    let sector = "";
+    let constraint = "";
 
     if (currentInterviewId) {
       const existing = await prisma.interview.findUnique({
         where: { id: currentInterviewId },
-        select: { currentStep: true }
+        select: { currentStep: true, history: true }
       });
       if (!existing) {
         throw new Error('Interview not found.');
       }
       if (existing.currentStep === 'VERDICT') {
         throw new Error('This interview is already finalized and cannot receive new messages.');
+      }
+
+      const firstTurn = Array.isArray(existing.history) ? existing.history[0] : null;
+      if (firstTurn && typeof firstTurn === 'object') {
+        sector = (firstTurn as any).sector || "";
+        constraint = (firstTurn as any).constraint || "";
       }
     } else {
       const scenarioRecord = await ensureScenario(scenario);
@@ -345,6 +375,11 @@ class InterviewService {
         }
       });
       currentInterviewId = interview.id;
+    }
+
+    if (!sector && Array.isArray(history) && history.length > 0) {
+      sector = (history[0] as any).sector || "";
+      constraint = (history[0] as any).constraint || "";
     }
 
     const interviewerQuestionsCount = history.filter((turn) => turn.role === 'interviewer').length;
@@ -365,7 +400,7 @@ class InterviewService {
       },
     ];
 
-    const rawText = await ai.sendPrompt(contents, buildSystemPrompt(scenario, forceVerdict));
+    const rawText = await ai.sendPrompt(contents, buildSystemPrompt(scenario, forceVerdict, sector, constraint));
     const result = extractAndParseJson(rawText);
 
     // Safeguard: programmatically force a verdict if the AI missed the instruction
