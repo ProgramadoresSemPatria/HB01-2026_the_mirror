@@ -245,7 +245,39 @@ function ChallengeCard({
 }
 
 function ChatBubble({ message, index }: { message: Message; index: number }) {
-  return <div />;
+  const isInterviewer = message.role === 'interviewer';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.12 }}
+      className={`flex flex-col gap-1 ${isInterviewer ? 'items-start' : 'items-end'}`}
+    >
+      <div
+        className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+          isInterviewer
+            ? 'rounded-tl-sm bg-surface text-foreground'
+            : message.hasGap
+              ? 'rounded-tr-sm border border-error/30 bg-error/10 text-foreground'
+              : 'rounded-tr-sm bg-primary/15 text-foreground'
+        }`}
+      >
+        {message.content}
+      </div>
+      {message.hasGap && message.gapNote && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="flex max-w-[80%] items-start gap-2 rounded-lg border border-warning/20 bg-warning/5 px-3 py-2 text-xs text-warning"
+        >
+          <WarningCircleIcon size={14} className="mt-0.5 shrink-0" weight="fill" />
+          <span>{message.gapNote}</span>
+        </motion.div>
+      )}
+    </motion.div>
+  );
 }
 
 function InterviewSimulator({ isInView }: { isInView: boolean }) {
@@ -345,7 +377,88 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
           </motion.div>
         )}
 
-        {appState !== 'setup' && (
+        {/* State: Interview */}
+        {appState === 'interview' && (
+          <motion.div
+            key="interview"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Interview header */}
+            <div className="mb-6 flex items-center justify-between">
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-foreground cursor-pointer"
+                id="btn-back-to-setup"
+              >
+                <ArrowLeftIcon size={16} />
+                Voltar
+              </button>
+              {selectedChallenge && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-foreground">{selectedChallenge.title}</span>
+                  <span className={`rounded-full border border-border px-2.5 py-0.5 text-xs ${selectedChallenge.difficultyColor}`}>
+                    {selectedChallenge.difficulty}
+                  </span>
+                </div>
+              )}
+              <button
+                onClick={handleSkipToVerdict}
+                className="text-xs text-text-muted transition-colors hover:text-error cursor-pointer"
+                id="btn-skip-to-verdict"
+              >
+                Encerrar sessão →
+              </button>
+            </div>
+
+            {/* Chat container */}
+            <div className="overflow-hidden rounded-2xl border border-border bg-background">
+              {/* Chat header bar */}
+              <div className="flex items-center gap-2 border-b border-border bg-surface-elevated px-4 py-3">
+                <div className="size-3 rounded-full bg-error/80" />
+                <div className="size-3 rounded-full bg-warning/80" />
+                <div className="size-3 rounded-full bg-success/80" />
+                <span className="ml-2 font-mono text-xs text-text-muted">
+                  the-mirror — sessão técnica em andamento
+                </span>
+              </div>
+
+              {/* Messages area */}
+              <div className="flex h-[440px] flex-col gap-4 overflow-y-auto p-5">
+                {messages.map((msg, i) => (
+                  <ChatBubble key={i} message={msg} index={i} />
+                ))}
+
+                {/* Typing indicator */}
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-xs text-text-muted">digitando</span>
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="size-1.5 rounded-full bg-primary"
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
+                        />
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                <div ref={chatEndRef} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {appState === 'verdict' && (
           <div className="text-center py-12 text-text-muted">
             Sessão: {appState}
           </div>
