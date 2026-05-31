@@ -21,7 +21,6 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "bcryptjs": "^3.0.3",
-    "boardroom-team-07": "file:..",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
