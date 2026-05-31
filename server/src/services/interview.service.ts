@@ -330,8 +330,15 @@ class InterviewService {
       currentInterviewId = interview.id;
     }
 
+    const interviewerQuestionsCount = history.filter((turn) => turn.role === 'interviewer').length;
+    const forceVerdict = interviewerQuestionsCount >= MAX_INTERVIEW_QUESTIONS;
+
+    // Para evitar exceder os limites de tokens por minuto (TPM), enviamos o histórico completo apenas no veredito final.
+    // Durante a entrevista ativa, limitamos o contexto enviado para o Groq aos últimos 4 turnos.
+    const historyToUse = forceVerdict ? history : history.slice(-4);
+
     const contents = [
-      ...history.map((turn) => ({
+      ...historyToUse.map((turn) => ({
         role: turn.role === 'interviewer' ? 'model' : 'user',
         parts: [{ text: turn.content }],
       })),
@@ -340,9 +347,6 @@ class InterviewService {
         parts: [{ text: candidateMessage }],
       },
     ];
-
-    const interviewerQuestionsCount = history.filter((turn) => turn.role === 'interviewer').length;
-    const forceVerdict = interviewerQuestionsCount >= MAX_INTERVIEW_QUESTIONS;
 
     const rawText = await ai.sendPrompt(contents, buildSystemPrompt(scenario, forceVerdict));
     const result = extractAndParseJson(rawText);
