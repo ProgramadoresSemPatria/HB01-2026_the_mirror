@@ -13,7 +13,7 @@ FLUXO:
 REGRA CRÍTICA: Responda APENAS em JSON puro (sem markdown ou tags de código):
 {
   "isFinalVerdict": boolean,
-  "nextInterviewerMessage": "contexto técnico + pergunta (35-65 palavras). Sem saudações. Reconheça e elogie brevemente o acerto do candidato antes de formular a próxima pergunta.",
+  "nextInterviewerMessage": "contexto técnico + pergunta (35-65 palavras). Sem saudações. A partir da segunda pergunta, reconheça e elogie brevemente o acerto técnico anterior do candidato antes de perguntar.",
   "feedback": "comentário curto (máx 20 palavras). Elogie acertos (ex: 'Excelente uso de try/catch.') ou aponte falhas (ex: 'Vago: faltou o índice.').",
   "diagnosis": {
     "gapDetected": "HAPPY_PATH_ONLY | BUZZWORD_BLUFF | CHANGING_REQUIREMENTS | DEFENSIVE_RESPONSE | NONE",
