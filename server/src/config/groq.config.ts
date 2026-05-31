@@ -80,16 +80,20 @@ class GroqConfig {
     const messages = this.formatMessages(contents, systemInstruction);
     console.log('[GroqConfig] Sending messages to Groq:', JSON.stringify(messages, null, 2));
     try {
+      const model = envService.getEnv('GROQ_MODEL') || 'qwen/qwen3-32b';
       const params: ChatCompletionCreateParams = {
-        model: 'qwen/qwen3-32b',
+        model,
         messages,
         temperature: 0.85,
         max_completion_tokens: 4096,
         top_p: 0.95,
         stream: false,
-        reasoning_effort: 'default',
         response_format: { type: 'json_object' }
       };
+      
+      if (model.includes('qwen')) {
+        (params as any).reasoning_effort = 'default';
+      }
       
       const response = await this.client.chat.completions.create(params);
       
