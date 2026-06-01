@@ -93,6 +93,19 @@ const sanitizeRawResponse = (raw: unknown): Record<string, unknown> => {
       }
     }
 
+    const rawSuccesses = rawScorecard['successes'];
+    const successes: Record<string, string>[] = [];
+    if (Array.isArray(rawSuccesses)) {
+      for (const s of rawSuccesses) {
+        if (isRecord(s)) {
+          successes.push({
+            criterion: typeof s['criterion'] === 'string' ? s['criterion'].trim() : "Ponto Forte",
+            description: typeof s['description'] === 'string' ? s['description'].trim() : "Demonstrou bom entendimento técnico."
+          });
+        }
+      }
+    }
+
     let finalScore = 30;
     if (typeof rawScorecard['finalScore'] === 'number') {
       finalScore = rawScorecard['finalScore'];
@@ -108,7 +121,8 @@ const sanitizeRawResponse = (raw: unknown): Record<string, unknown> => {
         ? rawScorecard['scenarioTitle'].trim()
         : "",
       finalScore,
-      failures
+      failures,
+      successes
     };
   }
 
