@@ -63,7 +63,7 @@ export function Sidebar() {
   }, [userId, location.pathname]);
 
   return (
-    <nav className="bg-[#080e1a] w-64 h-screen flex flex-col border-r border-[#162032]">
+    <nav className="bg-[#080e1a] w-64 h-full flex flex-col border-r border-[#162032]">
       <div className="p-6 border-b border-[#162032] flex items-center gap-2.5">
         <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
         <h1 className="text-lg font-bold text-white tracking-tight">The Mirror</h1>

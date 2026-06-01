@@ -7,7 +7,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-[#04080f] overflow-hidden">
+    <div className="fixed inset-0 flex bg-[#04080f] overflow-hidden">
       <button
         onClick={() => setIsMobileMenuOpen(true)}
         className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-[#080e1a] text-white hover:bg-[#0d1625] border border-[#162032] transition-opacity ${isMobileMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
@@ -41,7 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
-      <main className="flex-1 overflow-y-auto w-full lg:w-[calc(100%-16rem)] relative">
+      <main className="flex-1 overflow-hidden w-full lg:w-[calc(100%-16rem)] relative">
         {children}
       </main>
       <Toaster position="bottom-center" richColors />

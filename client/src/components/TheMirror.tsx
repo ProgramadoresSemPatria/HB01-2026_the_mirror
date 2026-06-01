@@ -108,8 +108,8 @@ function SetupScreen() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * i + 0.4, duration: 0.4 }}
             className={`mirror-scenario-card group relative flex items-start gap-4 p-4 rounded-xl text-left border transition-all ${s.locked
-                ? 'opacity-60 cursor-not-allowed border-[#162032] bg-[#04080f]/50 hover:opacity-100'
-                : 'border-zinc-800 hover:border-[#38bdf8]/30 hover:bg-[#38bdf8]/5'
+              ? 'opacity-60 cursor-not-allowed border-[#162032] bg-[#04080f]/50 hover:opacity-100'
+              : 'border-zinc-800 hover:border-[#38bdf8]/30 hover:bg-[#38bdf8]/5'
               }`}
             onClick={() => !s.locked && navigate(`/interviews/${s.slug}`)}
           >
