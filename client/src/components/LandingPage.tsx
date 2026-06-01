@@ -634,7 +634,7 @@ export default function LandingPage() {
                 id="header-cta-start"
                 className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover cursor-pointer"
               >
-                Começar Simulação
+                Começar Entrevista
               </button>
             </div>
 
@@ -687,7 +687,7 @@ export default function LandingPage() {
                 }}
                 className="mt-4 rounded-lg bg-primary px-8 py-3 text-lg font-medium text-primary-foreground transition-colors hover:bg-primary-hover cursor-pointer"
               >
-                Começar Simulação
+                Começar Entrevista
               </button>
             </motion.nav>
           </motion.div>
@@ -736,11 +736,6 @@ export default function LandingPage() {
               className="group inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary-hover hover:shadow-[0_0_30px_rgba(56,189,248,0.3)]"
             >
               Escolher um Desafio
-              <ArrowDownIcon
-                size={16}
-                weight="bold"
-                className="transition-transform group-hover:translate-y-1"
-              />
             </a>
             <a
               href="#como-funciona"
