@@ -4,6 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html {
+  zoom: 1.25;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -459,8 +463,12 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--mirror-border) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mirror-chat::-webkit-scrollbar {
+  display: none;
 }
 
 .mirror-bubble-wrap {
@@ -1029,4 +1037,12 @@
   color: var(--mirror-muted);
   line-height: 1.5;
   margin-top: 2px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

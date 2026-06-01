@@ -449,7 +449,7 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
               </div>
 
               {/* Messages area */}
-              <div className="flex h-[440px] flex-col gap-4 overflow-y-auto p-5">
+              <div className="flex h-[440px] flex-col gap-4 overflow-y-auto p-5 no-scrollbar">
                 {messages.map((msg, i) => (
                   <ChatBubble key={i} message={msg} index={i} />
                 ))}
@@ -537,9 +537,13 @@ function InterviewSimulator({ isInView }: { isInView: boolean }) {
                     transition={{ duration: 0.3, delay: 0.2 + i * 0.06 }}
                     className="flex items-center gap-4 px-6 py-3"
                   >
-                    <span className={`text-xs ${item.passed ? 'text-success' : 'text-error'}`}>
-                      {item.passed ? '✓' : '✗'}
-                    </span>
+                    <span
+                      className={`inline-block size-1.5 rounded-full shrink-0 ${
+                        item.passed
+                          ? 'bg-[#22c55e] shadow-[0_0_8px_rgba(34,197,94,0.5)]'
+                          : 'bg-[#ef4444] shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                      }`}
+                    />
                     <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
                       <span className="text-sm text-foreground">{item.label}</span>
                       <span className="text-xs text-text-muted">— {item.note}</span>
